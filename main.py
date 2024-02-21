@@ -1,24 +1,26 @@
 import numpy as np
 import md
 
+n = 2 # number of particles
+m = 40 # argon mass
+t = 1 # total time
+dt = 0.001 # time step
 
-argon_atom = md.particle(40, np.array([0,0,0]), np.array([1,0,0]))
-my_system = md.system(1)
-my_system.add_particle(argon_atom)
+my_system = md.system()
 
-#testing
-for particle in my_system.particles:
-    print(particle.m)
-    print(particle.r)
-    print(particle.v)
+my_system.add_particles(m, n)
 
-t = 1
-dt = 0.001
+# testing
+for p in my_system.particles:
+    print(p.m)
+    print(p.r)
+    print(p.v)
 
-my_system.verlet_evolve(dt)
+# evolve one step
+my_system.verlet_evolve(dt, n)
 
-#testing
-for particle in my_system.particles:
-    print(particle.m)
-    print(particle.r)
-    print(particle.v)
+# testing
+for p in my_system.particles:
+    print(p.m)
+    print(p.r)
+    print(p.v)
