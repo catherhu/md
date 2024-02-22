@@ -17,7 +17,7 @@ for p in my_system.particles:
     print(p.v)
 
 # evolve one step
-my_system.verlet_evolve(dt, n)
+my_system.verlet_simulate(dt, t, n)
 
 # testing
 for p in my_system.particles:
