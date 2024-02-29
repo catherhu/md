@@ -1,7 +1,7 @@
 import numpy as np
 import md
 
-n = 2 # number of particles
+n = 10 # number of particles
 m = 40 # argon mass
 t = 1 # total time
 dt = 0.001 # time step

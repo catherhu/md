@@ -26,16 +26,23 @@ class system:
         r_i = particle_i.r
         r_j = particle_j.r
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2)
-        F = 24*eps*(2*(sig/s)**6 - (sig/s)**12)
+        F = 24*eps*(2*(sig/s)**6 - (sig/s)**12)*(r_i - r_j)/(s**2)
+        return F
+    
+    def total_force_particles(self, i, n):
+        F = np.zeros(3)
+        for j in range(n):
+            if j != i:
+                F += self.lennard_jones(i, j)
         return F
 
     def verlet_evolve(self, dt, n):
         for i in range(n):
-            F = self.lennard_jones(0, 1)
+            F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
-            F = self.lennard_jones(0, 1)
+            F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
 
