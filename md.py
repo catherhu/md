@@ -18,15 +18,25 @@ class system:
             v = np.random.uniform(low = -1, high = 1, size = 3)
             self.particles.append(particle(m, r, v))
 
-    def total_force(self):
-        return 0
+    def lennard_jones(self, i, j):
+        eps = 1
+        sig = 1
+        particle_i = self.particles[i]
+        particle_j = self.particles[j]
+        r_i = particle_i.r
+        r_j = particle_j.r
+        s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2)
+        F = 24*eps*(2*(sig/s)**6 - (sig/s)**12)
+        return F
 
     def verlet_evolve(self, dt, n):
         for i in range(n):
-            a = self.total_force()/self.particles[i].m
+            F = self.lennard_jones(0, 1)
+            a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
-            a = self.total_force()/self.particles[i].m
+            F = self.lennard_jones(0, 1)
+            a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
 
     def verlet_simulate(self, dt, t, n):
