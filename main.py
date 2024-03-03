@@ -1,14 +1,15 @@
 import numpy as np
 import md
 
-n = 10 # number of particles
+n = 2 # number of particles
 m = 40 # argon mass
 t = 1 # total time
 dt = 0.001 # time step
+T = 298 # initial temperature
 
 my_system = md.system()
 
-my_system.add_particles(m, n)
+my_system.add_particles(m, n, T)
 
 # testing
 for p in my_system.particles:

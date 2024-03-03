@@ -2,6 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+"""
+Plan:
+Find way to test code
+Add temperature
+Add periodic boundary conditions
+Velocity distribution
+Visualization
+Other gases than argon
+Architecture 
+"""
 class particle:
     def __init__ (self, mass, position, velocity):
         self.m = mass
@@ -12,11 +22,14 @@ class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, m, n):
+    def add_particles(self, m, n, T):
+        k = 1.38
         for i in range(n):
             r = np.random.uniform(low = -1, high = 1, size = 3)
-            v = np.random.uniform(low = -1, high = 1, size = 3)
+            v = np.random.normal(0, np.sqrt(k*T/m), size = 3)
             self.particles.append(particle(m, r, v))
+
+    #def add_boundary_conditions(self)
 
     def lennard_jones(self, i, j):
         eps = 1
