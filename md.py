@@ -69,5 +69,8 @@ class system:
                 file.write("type                    x                    y                    z\n")
             self.verlet_evolve(dt, n)
             
+            
+            
+            
 
    

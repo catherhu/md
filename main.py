@@ -10,10 +10,10 @@ a = 3.59
 b = 3.34E-5
 """
 
-n = 32
+n = 100
 m = 1 # mass
-t = 1E-12 # total time
-dt = 1E-15 # time step
+t = 1E-6 # total time
+dt = 1E-9 # time step
 T = 1 # initial temperature
 
 
