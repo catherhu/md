@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 """
-Plan:
+To do:
 Find way to test code
-Add temperature
+Add temperature, pressure calculations, etc.
 Add periodic boundary conditions
-Velocity distribution
-Visualization
+Visualization?
 Other gases than argon
-Architecture 
+Improve code structure
 """
+
 class particle:
     def __init__ (self, mass, position, velocity):
         self.m = mass
@@ -22,10 +22,10 @@ class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, m, n, T):
-        k = 1.38
+    def add_particles(self, m, n, T, V):
+        k = 1.38E-23
         for i in range(n):
-            r = np.random.uniform(low = -1, high = 1, size = 3)
+            r = np.random.uniform(low = 0, high = V, size = 3)
             v = np.random.normal(0, np.sqrt(k*T/m), size = 3)
             self.particles.append(particle(m, r, v))
 
