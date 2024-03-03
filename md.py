@@ -56,11 +56,17 @@ class system:
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
+            with open('md.txt', 'a') as file:
+                file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
             
-
     def verlet_simulate(self, dt, t, n):
         n_iter = int(t/dt)
+        with open('md.txt', 'w') as file:
+            pass
         for i in range(n_iter):
+            with open('md.txt', 'a') as file:
+                file.write(f"{n}\n")
+                file.write("type                    x                    y                    z\n")
             self.verlet_evolve(dt, n)
             
 

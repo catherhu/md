@@ -23,8 +23,3 @@ my_system.add_particles(m, n, T)
 
 my_system.verlet_simulate(dt, t, n)
 
-
-# testing
-for p in my_system.particles:
-    print(p.r)
-    print(p.v)
