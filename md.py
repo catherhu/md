@@ -4,7 +4,6 @@ from matplotlib.animation import FuncAnimation
 
 """
 To do:
-Adjust units!!!!!!!
 Find way to test code
 Add temperature, pressure calculations, etc.
 Add periodic boundary conditions
@@ -23,24 +22,22 @@ class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, m, n, T, V):
+    def add_particles(self, m, n, T):
         k = 1.38E-23
         for i in range(n):
-            r = np.random.uniform(low = 0, high = V, size = 3)
+            r = np.random.uniform(low = 0, high = 1, size = 3)
             v = np.random.normal(0, np.sqrt(k*T/m), size = 3)
             self.particles.append(particle(m, r, v))
 
     #def add_boundary_conditions(self)
 
     def lennard_jones(self, i, j):
-        eps = 1
-        sig = 1
         particle_i = self.particles[i]
         particle_j = self.particles[j]
         r_i = particle_i.r
         r_j = particle_j.r
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2)
-        F = 24*eps*(2*(sig/s)**6 - (sig/s)**12)*(r_i - r_j)/(s**2)
+        F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
     def total_force_particles(self, i, n):
@@ -59,8 +56,6 @@ class system:
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
-            print(f"position of particle {i} : {self.particles[i].r}")
-            print(f"velocity of particle {i} : {self.particles[i].v}")
             
 
     def verlet_simulate(self, dt, t, n):

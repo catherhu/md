@@ -10,31 +10,21 @@ a = 3.59
 b = 3.34E-5
 """
 
-n = 10
-V = 1 # volume in cubic meters
-m_a = 40 # argon atomic mass
-t = 0.002 # total time
-dt = 0.001 # time step
-T = 298 # initial temperature
+n = 32
+m = 1 # mass
+t = 1E-12 # total time
+dt = 1E-15 # time step
+T = 1 # initial temperature
 
-m = m_a * 1.66E-27
 
 my_system = md.system()
 
-my_system.add_particles(m, n, T, V)
-
-# testing
-"""
-for p in my_system.particles:
-    print(p.r)
-    print(p.v)
-"""
+my_system.add_particles(m, n, T)
 
 my_system.verlet_simulate(dt, t, n)
 
+
 # testing
-"""
 for p in my_system.particles:
     print(p.r)
     print(p.v)
-"""

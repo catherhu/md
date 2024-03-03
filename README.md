@@ -1,1 +1,1 @@
-# THE CODE HAS BUGS
+Currently working on nondimensionalization of parameters.
