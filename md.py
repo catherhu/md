@@ -4,9 +4,9 @@ from matplotlib.animation import FuncAnimation
 
 """
 To do:
-Find way to test code
-Add temperature, pressure calculations, etc.
+Check untis
 Add periodic boundary conditions
+Add temperature, pressure calculations, etc.
 Visualization?
 Other gases than argon
 Improve code structure
@@ -49,6 +49,8 @@ class system:
 
     def verlet_evolve(self, dt, n):
         for i in range(n):
+            with open('md.txt', 'a') as file:
+                file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
@@ -56,8 +58,6 @@ class system:
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
-            with open('md.txt', 'a') as file:
-                file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
             
     def verlet_simulate(self, dt, t, n):
         n_iter = int(t/dt)
