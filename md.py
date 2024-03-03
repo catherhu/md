@@ -4,6 +4,7 @@ from matplotlib.animation import FuncAnimation
 
 """
 To do:
+Adjust units!!!!!!!
 Find way to test code
 Add temperature, pressure calculations, etc.
 Add periodic boundary conditions
@@ -58,10 +59,14 @@ class system:
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
+            print(f"position of particle {i} : {self.particles[i].r}")
+            print(f"velocity of particle {i} : {self.particles[i].v}")
+            
 
     def verlet_simulate(self, dt, t, n):
         n_iter = int(t/dt)
         for i in range(n_iter):
             self.verlet_evolve(dt, n)
+            
 
    
