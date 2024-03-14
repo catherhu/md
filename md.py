@@ -5,6 +5,7 @@ from matplotlib.animation import FuncAnimation
 """
 To do:
 Check untis
+Add a boolean variable to turn on/off boundary conditions
 Add periodic boundary conditions
 Add temperature, pressure calculations, etc.
 Improve code structure
@@ -22,33 +23,36 @@ class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, m, n, T):
+    def add_particles(self, m, n, T, box_size):
         k = 1.38E-23
         for i in range(n):
-            r = np.random.uniform(low = 0, high = 1, size = 3)
+            r = np.random.uniform(low = 0, high = box_size, size = 3)
             v = np.random.normal(0, np.sqrt(k*T/m), size = 3)
             self.particles.append(particle(m, r, v))
-
-    #def add_boundary_conditions(self)
-
-    def lennard_jones(self, i, j):
+            
+    def lennard_jones(self, i, j, coord_array):
         particle_i = self.particles[i]
         particle_j = self.particles[j]
         r_i = particle_i.r
-        r_j = particle_j.r
+        r_j = particle_j.r + coord_array
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2)
-        print(s)
         if s > 3:
             F = 0
         else:
-        F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
+            F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
-    def total_force_particles(self, i, n):
+    
+    def total_force_particles(self, i, n): 
         F = np.zeros(3)
+        #need a more elegant way to implement this:
+        boundaries = np.array([[-1,-1,-1],[-1,-1,0],[-1,-1,1],[-1,0,-1],[-1,0,0],[-1,0,1],[-1,1,-1],[-1,1,0],[-1,1,1],
+                [0,-1,-1],[0,-1,0],[0,-1,1],[0,0,-1],[0,0,0],[0,0,1],[0,1,-1],[0,1,0],[0,1,1],
+                [1,-1,-1],[1,-1,0],[1,-1,1],[1,0,-1],[1,0,0],[1,0,1],[1,1,-1],[1,1,0],[1,1,1]])
         for j in range(n):
             if j != i:
-                F += self.lennard_jones(i, j)
+                for k in range(boundaries.shape[0]):
+                    F += self.lennard_jones(i, j, boundaries[k])
         return F
 
     def verlet_evolve(self, dt, n):
