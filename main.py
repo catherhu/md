@@ -2,7 +2,7 @@ import numpy as np
 import md
 
 
-n = 100
+n = 10
 m = 1 # mass
 t = 1E-7 # total time
 dt = 1E-10 # time step

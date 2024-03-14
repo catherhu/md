@@ -7,9 +7,9 @@ To do:
 Check untis
 Add periodic boundary conditions
 Add temperature, pressure calculations, etc.
+Improve code structure
 Visualization?
 Other gases than argon
-Improve code structure
 """
 
 class particle:
@@ -37,6 +37,10 @@ class system:
         r_i = particle_i.r
         r_j = particle_j.r
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2)
+        print(s)
+        if s > 3:
+            F = 0
+        else:
         F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
