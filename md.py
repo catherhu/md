@@ -8,6 +8,8 @@ Check untis
 Maybe add a boolean variable to turn on/off boundary conditions
 Add temperature, pressure calculations, etc.
 Improve code structure
+Optimize
+Solve the division by zero issue
 Other gases than argon?
 """
 
@@ -65,9 +67,9 @@ class system:
             #is this an accurate representation of reality?
             for k in [0, 1, 2]:
                 if self.particles[i].r[k] >= 1:
-                    self.particles[i].r[k] = 1E-10
+                    self.particles[i].r[k] = 1E-8
                 if self.particles[i].r[k] <= 0:
-                    self.particles[i].r[k] = 1 - 1E-10
+                    self.particles[i].r[k] = 1 - 1E-8
 
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
