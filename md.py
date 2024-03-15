@@ -5,12 +5,10 @@ from matplotlib.animation import FuncAnimation
 """
 To do:
 Check untis
-Add a boolean variable to turn on/off boundary conditions
-Add periodic boundary conditions
+Maybe add a boolean variable to turn on/off boundary conditions
 Add temperature, pressure calculations, etc.
 Improve code structure
-Visualization?
-Other gases than argon
+Other gases than argon?
 """
 
 class particle:
@@ -63,6 +61,14 @@ class system:
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
+
+            #is this an accurate representation of reality?
+            for k in [0, 1, 2]:
+                if self.particles[i].r[k] >= 1:
+                    self.particles[i].r[k] = 1E-10
+                if self.particles[i].r[k] <= 0:
+                    self.particles[i].r[k] = 1 - 1E-10
+
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
