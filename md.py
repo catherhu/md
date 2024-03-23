@@ -1,23 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product
+#from joblib import Parallel, delayed
 
 """
 To do:
-Add comments
 Time scale?
-Add a boolean variable to turn on/off boundary conditions?
 Add temperature, pressure calculations, etc.
 Better code structure?
-Optimize?
+Optimization?
 Other gases than argon?
 """
 
 class particle:
-    def __init__ (self, mass, position, velocity):
+    def __init__ (self, mass, position, velocity, acceleration):
         self.m = mass
         self.r = position
         self.v = velocity
+        self.a = acceleration
 
 class system:
     def __init__ (self):
@@ -27,7 +27,8 @@ class system:
         for i in range(n):
             r = np.random.uniform(low = 0, high = system_size, size = 3) # particles uniformly distributed in space
             v = np.random.normal(0, np.sqrt(T/m), size = 3) # velocities distribution
-            self.particles.append(particle(m, r, v))
+            a = np.zeros(3) # initial acceleration is set to zero
+            self.particles.append(particle(m, r, v, a))
 
     # calculating force between two particles:        
     def lennard_jones(self, i, j, coord_array):
@@ -56,24 +57,31 @@ class system:
 
     # system evolution for a single step:
     def verlet_evolve(self, dt, n):
+        # calculate acceleration for all particles:
+        for i in range(n):
+            F = self.total_force_particles(i, n)
+            self.particles[i].a = F/self.particles[i].m
+        # write to file and update velocities and positions for all particles:
         for i in range(n):
             with open('md.txt', 'a') as file:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
-            F = self.total_force_particles(i, n)
-            a = F/self.particles[i].m
-            self.particles[i].v = self.particles[i].v + 0.5*a*dt
+            self.particles[i].v = self.particles[i].v + 0.5*self.particles[i].a*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
-            # getting the particles that leave the system to re-enter from the opposite side:
+            # get the particles that leave the system to re-enter from the opposite side:
             for k in [0, 1, 2]:
                 if self.particles[i].r[k] > 1:
                     self.particles[i].r[k] = self.particles[i].r[k] % 1
                 if self.particles[i].r[k] < 0:
                     self.particles[i].r[k] = self.particles[i].r[k] % 1 
-                
+        # again calculate acceleration for all particles:
+        for i in range(n):       
             F = self.total_force_particles(i, n)
-            a = F/self.particles[i].m
-            self.particles[i].v = self.particles[i].v + 0.5*a*dt
-            
+            self.particles[i].a = F/self.particles[i].m
+        # update velocities for all particles:
+        for i in range(n): 
+            self.particles[i].v = self.particles[i].v + 0.5*self.particles[i].a*dt
+
+    # system evolution through time:     
     def verlet_simulate(self, dt, t, n):
         n_iter = int(t/dt)
         with open('md.txt', 'w') as file:
@@ -83,6 +91,13 @@ class system:
                 file.write(f"{n}\n")
                 file.write("type                    x                    y                    z\n")
             self.verlet_evolve(dt, n)
+        # write last step to file:
+        with open('md.txt', 'a') as file:
+            file.write(f"{n}\n")
+            file.write("type                    x                    y                    z\n")
+        for i in range(n):
+            with open('md.txt', 'a') as file:
+                file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
             
             
             
