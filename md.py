@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from itertools import product
 
 """
 To do:
+Add comments
 Check untis
 Maybe add a boolean variable to turn on/off boundary conditions
 Add temperature, pressure calculations, etc.
@@ -45,10 +46,7 @@ class system:
     
     def total_force_particles(self, i, n): 
         F = np.zeros(3)
-        #need a more elegant way to implement this:
-        boundaries = np.array([[-1,-1,-1],[-1,-1,0],[-1,-1,1],[-1,0,-1],[-1,0,0],[-1,0,1],[-1,1,-1],[-1,1,0],[-1,1,1],
-                [0,-1,-1],[0,-1,0],[0,-1,1],[0,0,-1],[0,0,0],[0,0,1],[0,1,-1],[0,1,0],[0,1,1],
-                [1,-1,-1],[1,-1,0],[1,-1,1],[1,0,-1],[1,0,0],[1,0,1],[1,1,-1],[1,1,0],[1,1,1]])
+        boundaries = np.array(list(product([-1, 0, 1], repeat=3)))
         for j in range(n):
             if j != i:
                 for k in range(boundaries.shape[0]):
@@ -64,13 +62,12 @@ class system:
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
 
-            #is this an accurate representation of reality?
             for k in [0, 1, 2]:
                 if self.particles[i].r[k] >= 1:
-                    self.particles[i].r[k] = 1E-8
+                    self.particles[i].r[k] = 1e-8
                 if self.particles[i].r[k] <= 0:
-                    self.particles[i].r[k] = 1 - 1E-8
-
+                    self.particles[i].r[k] = 1 - 1e-8
+                
             F = self.total_force_particles(i, n)
             a = F/self.particles[i].m
             self.particles[i].v = self.particles[i].v + 0.5*a*dt
