@@ -5,7 +5,6 @@ from itertools import product
 
 """
 To do:
-Time scale?
 Add temperature, pressure calculations, etc.
 Better code structure?
 Optimization?
@@ -13,22 +12,19 @@ Other gases than argon?
 """
 
 class particle:
-    def __init__ (self, mass, position, velocity, acceleration):
-        self.m = mass
+    def __init__ (self, position, velocity):
         self.r = position
         self.v = velocity
-        self.a = acceleration
 
 class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, m, n, T, system_size):
+    def add_particles(self, n, T, system_size):
         for i in range(n):
             r = np.random.uniform(low = 0, high = system_size, size = 3) # particles uniformly distributed in space
-            v = np.random.normal(0, np.sqrt(T/m), size = 3) # velocities distribution
-            a = np.zeros(3) # initial acceleration is set to zero
-            self.particles.append(particle(m, r, v, a))
+            v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
+            self.particles.append(particle(r, v))
 
     # calculating force between two particles:        
     def lennard_jones(self, i, j, coord_array):
@@ -60,12 +56,11 @@ class system:
         # calculate acceleration for all particles:
         for i in range(n):
             F = self.total_force_particles(i, n)
-            self.particles[i].a = F/self.particles[i].m
         # write to file and update velocities and positions for all particles:
         for i in range(n):
             with open('md.txt', 'a') as file:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
-            self.particles[i].v = self.particles[i].v + 0.5*self.particles[i].a*dt
+            self.particles[i].v = self.particles[i].v + 0.5*F*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
             # get the particles that leave the system to re-enter from the opposite side:
             for k in [0, 1, 2]:
@@ -76,10 +71,9 @@ class system:
         # again calculate acceleration for all particles:
         for i in range(n):       
             F = self.total_force_particles(i, n)
-            self.particles[i].a = F/self.particles[i].m
         # update velocities for all particles:
         for i in range(n): 
-            self.particles[i].v = self.particles[i].v + 0.5*self.particles[i].a*dt
+            self.particles[i].v = self.particles[i].v + 0.5*F*dt
 
     # system evolution through time:     
     def verlet_simulate(self, dt, t, n):
