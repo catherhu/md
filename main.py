@@ -1,7 +1,7 @@
 import md
 
 
-n = 100 # number of particles
+n = 50 # number of particles
 t = 1 # total time
 dt = 1e-3 # time step
 m = 1

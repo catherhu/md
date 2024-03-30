@@ -34,13 +34,7 @@ class system:
         if np.isnan(s):
             print("Error: contains NaN values")
             sys.exit()
-        else:
-            print(f"s {s}")
-        # condition that particles more than 3 units apart don't interact:
-        if s > 3:
-            F = 0
-        else:
-            F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
+        F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
     # calculating total force from all particles acting on a chosen particle:
@@ -65,14 +59,25 @@ class system:
         for i in range(n):
             with open('md.txt', 'a') as file:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
-            self.particles[i].v = self.particles[i].v + 0.5*F/self.particles[i].m*dt
+            self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
+            print(f"v[{i}] {self.particles[i].v}")
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
+            print(f"r[{i}] {self.particles[i].r}")
             # get the particles that leave the system to re-enter from the opposite side:
             for k in [0, 1, 2]:
+                """
+                
+                NEED BETTER IMPLEMENTATION!!!
+                
+                
+                """
                 if self.particles[i].r[k] > 1:
-                    self.particles[i].r[k] = self.particles[i].r[k] % 1
+                    #self.particles[i].r[k] = self.particles[i].r[k] % 1
+                    self.particles[i].r[k] = np.random.rand()
                 if self.particles[i].r[k] < 0:
-                    self.particles[i].r[k] = self.particles[i].r[k] % 1 
+                    #self.particles[i].r[k] = self.particles[i].r[k] % 1
+                    self.particles[i].r[k] = np.random.rand()
+            print(f"r[{i}] {self.particles[i].r}")
         # again calculate acceleration for all particles:
         for i in range(n):       
             F = self.total_force_particles(i, n)
