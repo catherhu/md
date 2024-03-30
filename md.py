@@ -12,27 +12,30 @@ Other gases than argon?
 """
 
 class particle:
-    def __init__ (self, position, velocity):
+    def __init__ (self, position, velocity, mass):
         self.r = position
         self.v = velocity
-
+        self.m = mass
 class system:
     def __init__ (self):
         self.particles = []
 
-    def add_particles(self, n, T, system_size):
+    def add_particles(self, n, m, T, system_size):
         for i in range(n):
             r = np.random.uniform(low = 0, high = system_size, size = 3) # particles uniformly distributed in space
             v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
-            self.particles.append(particle(r, v))
+            self.particles.append(particle(r, v, m))
 
     # calculating force between two particles:        
     def lennard_jones(self, i, j, coord_array):
-        particle_i = self.particles[i]
-        particle_j = self.particles[j]
-        r_i = particle_i.r
-        r_j = particle_j.r + coord_array # by using coord_array we also consider interactions with dummy particles outside the boundaries
+        r_i = self.particles[i].r
+        r_j = self.particles[j].r + coord_array # by using coord_array we also consider interactions with dummy particles outside the boundaries
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2) # calculating distance between two particles
+        if np.isnan(s):
+            print("Error: contains NaN values")
+            sys.exit()
+        else:
+            print(f"s {s}")
         # condition that particles more than 3 units apart don't interact:
         if s > 3:
             F = 0
@@ -53,14 +56,16 @@ class system:
 
     # system evolution for a single step:
     def verlet_evolve(self, dt, n):
+        a = np.zeros((n, 3))
         # calculate acceleration for all particles:
         for i in range(n):
             F = self.total_force_particles(i, n)
+            a[i] = F/self.particles[i].m
         # write to file and update velocities and positions for all particles:
         for i in range(n):
             with open('md.txt', 'a') as file:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
-            self.particles[i].v = self.particles[i].v + 0.5*F*dt
+            self.particles[i].v = self.particles[i].v + 0.5*F/self.particles[i].m*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
             # get the particles that leave the system to re-enter from the opposite side:
             for k in [0, 1, 2]:
@@ -71,9 +76,10 @@ class system:
         # again calculate acceleration for all particles:
         for i in range(n):       
             F = self.total_force_particles(i, n)
+            a[i] = F/self.particles[i].m
         # update velocities for all particles:
         for i in range(n): 
-            self.particles[i].v = self.particles[i].v + 0.5*F*dt
+            self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
 
     # system evolution through time:     
     def verlet_simulate(self, dt, t, n):
