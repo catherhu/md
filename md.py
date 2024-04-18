@@ -19,19 +19,23 @@ class system:
                 for z in range(lattice_dim):
 
                     r = np.array([x, y, z]) * unit_cell_size 
-                    v = np.random.normal(0, np.sqrt(T), size = 3) 
+                    v = np.zeros(3)
+                    #v = np.random.normal(0, np.sqrt(T), size = 3) 
                     self.particles.append(particle(r, v, m))
 
                     r = np.array([x, y + 0.5, z + 0.5]) * unit_cell_size 
-                    v = np.random.normal(0, np.sqrt(T), size = 3) 
+                    v = np.zeros(3)
+                    #v = np.random.normal(0, np.sqrt(T), size = 3) 
                     self.particles.append(particle(r, v, m))
 
                     r = np.array([x + 0.5, y, z + 0.5]) * unit_cell_size 
-                    v = np.random.normal(0, np.sqrt(T), size = 3) 
+                    v = np.zeros(3)
+                    #v = np.random.normal(0, np.sqrt(T), size = 3) 
                     self.particles.append(particle(r, v, m))
 
                     r = np.array([x + 0.5, y + 0.5, z]) * unit_cell_size 
-                    v = np.random.normal(0, np.sqrt(T), size = 3)
+                    v = np.zeros(3)
+                    #v = np.random.normal(0, np.sqrt(T), size = 3)
                     self.particles.append(particle(r, v, m))
 
     # calculating force between two particles:        
@@ -65,7 +69,7 @@ class system:
         return F
 
     # system evolution for a single step:
-    def verlet_evolve(self, dt):
+    def verlet_evolve(self, dt, system_size):
         n = len(self.particles)
         a = np.zeros((n, 3))
         # calculate acceleration for all particles:
@@ -78,15 +82,13 @@ class system:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
-            # get the particles that leave the system to re-enter from the opposite side:
             """
-            for k in [0, 1, 2]:
-                if self.particles[i].r[k] > 1:
+            # get the particles that leave the system to re-enter from the opposite side:
+            for k in range(3):
+                if self.particles[i].r[k] > system_size:
                     self.particles[i].r[k] = self.particles[i].r[k] % system_size
-                    #self.particles[i].r[k] = np.random.uniform(0, system_size)
                 if self.particles[i].r[k] < 0:
                     self.particles[i].r[k] = self.particles[i].r[k] % system_size
-                    #self.particles[i].r[k] = np.random.uniform(0, system_size)
             """
         # again calculate acceleration for all particles:
         for i in range(n):       
@@ -97,7 +99,7 @@ class system:
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
 
     # system evolution through time:     
-    def verlet_simulate(self, dt, t):
+    def verlet_simulate(self, dt, t, unit_cell_size, lattice_dim):
         n_iter = int(t/dt)
         n = len(self.particles)
         with open('md.txt', 'w') as file:
@@ -106,7 +108,7 @@ class system:
             with open('md.txt', 'a') as file:
                 file.write(f"{n}\n")
                 file.write("type                    x                    y                    z\n")
-            self.verlet_evolve(dt)
+            self.verlet_evolve(dt, system_size = unit_cell_size * lattice_dim)
         # write last step to file:
         with open('md.txt', 'a') as file:
             file.write(f"{n}\n")
