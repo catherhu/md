@@ -3,13 +3,6 @@ import matplotlib.pyplot as plt
 from itertools import product
 #from joblib import Parallel, delayed
 
-"""
-To do:
-Add temperature, pressure calculations, etc.
-Better code structure?
-Optimization?
-Other gases than argon?
-"""
 
 class particle:
     def __init__ (self, position, velocity, mass):
@@ -21,10 +14,26 @@ class system:
         self.particles = []
 
     def add_particles(self, n, m, T, system_size):
-        for i in range(n):
-            r = np.random.uniform(low = 0, high = system_size, size = 3) # particles uniformly distributed in space
-            v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
-            self.particles.append(particle(r, v, m))
+        unit_cell_size = 1.7 # for liquid argon, density = 1.374 g/L
+        for x in range(3): # 4*3^3 = 108, defines number of particles, n not used, need better implementation, ensure reproducibility
+            for y in range(3):
+                for z in range(3):
+
+                    r = np.array([x, y, z]) * unit_cell_size # lattice
+                    v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
+                    self.particles.append(particle(r, v, m))
+
+                    r = np.array([x, y + 0.5, z + 0.5]) * unit_cell_size # lattice
+                    v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
+                    self.particles.append(particle(r, v, m))
+
+                    r = np.array([x + 0.5, y, z + 0.5]) * unit_cell_size # lattice
+                    v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
+                    self.particles.append(particle(r, v, m))
+
+                    r = np.array([x + 0.5, y + 0.5, z]) * unit_cell_size # lattice
+                    v = np.random.normal(0, np.sqrt(T), size = 3) # velocities distribution
+                    self.particles.append(particle(r, v, m))
 
     # calculating force between two particles:        
     def lennard_jones(self, i, j, coord_array):
@@ -34,14 +43,18 @@ class system:
         if np.isnan(s):
             print("Error: contains NaN values")
             sys.exit()
+        # particles far apart have negligible interactions
+        #if s > 3:
+            #F = 0
+        #else:
         F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
     # calculating total force from all particles acting on a chosen particle:
-    def total_force_particles(self, i, n): 
+    def total_force_particles(self, i, n, system_size): 
         F = np.zeros(3)
         # all the possible values that can be added to particle coordinates to create dummy particles outside boundaries:
-        boundaries = np.array(list(product([-1, 0, 1], repeat=3)))
+        boundaries = np.array(list(product([-system_size, 0, system_size], repeat=3)))
         for j in range(n):
             if j != i:
                 for k in range(boundaries.shape[0]):
@@ -49,11 +62,11 @@ class system:
         return F
 
     # system evolution for a single step:
-    def verlet_evolve(self, dt, n):
+    def verlet_evolve(self, dt, n, system_size):
         a = np.zeros((n, 3))
         # calculate acceleration for all particles:
         for i in range(n):
-            F = self.total_force_particles(i, n)
+            F = self.total_force_particles(i, n, system_size)
             a[i] = F/self.particles[i].m
         # write to file and update velocities and positions for all particles:
         for i in range(n):
@@ -65,29 +78,23 @@ class system:
             print(f"r[{i}] {self.particles[i].r}")
             # get the particles that leave the system to re-enter from the opposite side:
             for k in [0, 1, 2]:
-                """
-                
-                NEED BETTER IMPLEMENTATION!!!
-                
-                
-                """
                 if self.particles[i].r[k] > 1:
-                    #self.particles[i].r[k] = self.particles[i].r[k] % 1
-                    self.particles[i].r[k] = np.random.rand()
+                    self.particles[i].r[k] = self.particles[i].r[k] % system_size
+                    #self.particles[i].r[k] = np.random.uniform(0, system_size)
                 if self.particles[i].r[k] < 0:
-                    #self.particles[i].r[k] = self.particles[i].r[k] % 1
-                    self.particles[i].r[k] = np.random.rand()
+                    self.particles[i].r[k] = self.particles[i].r[k] % system_size
+                    #self.particles[i].r[k] = np.random.uniform(0, system_size)
             print(f"r[{i}] {self.particles[i].r}")
         # again calculate acceleration for all particles:
         for i in range(n):       
-            F = self.total_force_particles(i, n)
+            F = self.total_force_particles(i, n, system_size)
             a[i] = F/self.particles[i].m
         # update velocities for all particles:
         for i in range(n): 
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
 
     # system evolution through time:     
-    def verlet_simulate(self, dt, t, n):
+    def verlet_simulate(self, dt, t, n, system_size):
         n_iter = int(t/dt)
         with open('md.txt', 'w') as file:
             pass
@@ -95,7 +102,7 @@ class system:
             with open('md.txt', 'a') as file:
                 file.write(f"{n}\n")
                 file.write("type                    x                    y                    z\n")
-            self.verlet_evolve(dt, n)
+            self.verlet_evolve(dt, n, system_size)
         # write last step to file:
         with open('md.txt', 'a') as file:
             file.write(f"{n}\n")
