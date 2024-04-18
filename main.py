@@ -1,17 +1,18 @@
 import md
 
 
-n = 108 # number of particles
-t = 1 # total time
-dt = 1e-3 # time step
-m = 1
-T = 0.75 # initial temperature, reduced units
-system_size = 3 # reduced units
+unit_cell_size = 1.7 # for liquid argon, density = 1.374 g/L
+lattice_dim = 4 # corresponds to 108 particles
+t = 5 # total time
+dt = 0.01 # time step
+m = 1 # mass
+T = 0.75 # initial temperature
+
 
 my_system = md.system() 
 
-my_system.add_particles(n, m, T, system_size)
+my_system.add_particles(unit_cell_size, lattice_dim, m, T)
 
-my_system.verlet_simulate(dt, t, n, system_size)
+my_system.verlet_simulate(dt, t)
 
 
