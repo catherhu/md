@@ -103,11 +103,11 @@ class system:
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
             
             # reflective boundaries:
-            if self.particles[i].r[0] > system_size or self.particles[i].r[1] > system_size or self.particles[i].r[2] > system_size:
+            # should be actually system_size - 0.5 * unit_cell_size
+            if any(self.particles[i].r[k] > system_size or self.particles[i].r[k] < 0 for k in range(3)):
                 self.particles[i].v = -self.particles[i].v
-            if self.particles[i].r[0] < 0 or self.particles[i].r[1] < 0 or self.particles[i].r[2] < 0:
-                self.particles[i].v = -self.particles[i].v 
 
+            
             """
             # get the particles that leave the system to re-enter from the opposite side:
             for k in range(3):
