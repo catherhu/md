@@ -66,10 +66,10 @@ class system:
         return F
     
     # calculating total force from all particles acting on a chosen particle:
-    def total_force_particles(self, i, system_size): 
+    def total_force_particles(self, i, unit_cell_size, lattice_dim): 
         F = np.zeros(3)
         # all the possible values that can be added to particle coordinates to create dummy particles outside boundaries:
-        #boundaries = np.array(list(product([-system_size, 0, system_size], repeat=3)))
+        #boundaries = np.array(list(product([-unit_cell_size * lattice_dim, 0, unit_cell_size * lattice_dim], repeat=3)))
         n = len(self.particles)
         for j in range(n):
             if j != i:
@@ -81,12 +81,12 @@ class system:
         return F
 
     # system evolution for a single step:
-    def verlet_evolve(self, dt, system_size):
+    def verlet_evolve(self, dt, unit_cell_size, lattice_dim):
         n = len(self.particles)
         a = np.zeros((n, 3))
         # calculate acceleration for all particles:
         for i in range(n):
-            F = self.total_force_particles(i, system_size)
+            F = self.total_force_particles(i, unit_cell_size, lattice_dim)
             a[i] = F/self.particles[i].m
         # write to file and update velocities and positions for all particles:
         for i in range(n):
@@ -96,32 +96,30 @@ class system:
             self.particles[i].r = self.particles[i].r + self.particles[i].v*dt
         # again calculate acceleration for all particles:
         for i in range(n):       
-            F = self.total_force_particles(i, system_size)
+            F = self.total_force_particles(i, unit_cell_size, lattice_dim)
             a[i] = F/self.particles[i].m
         # update velocities for all particles:
         for i in range(n): 
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
             
             # reflective boundaries:
-            # should be actually system_size - 0.5 * unit_cell_size
-            if any(self.particles[i].r[k] > system_size or self.particles[i].r[k] < 0 for k in range(3)):
+            if any(self.particles[i].r[k] > unit_cell_size * (lattice_dim - 0.5) or self.particles[i].r[k] < 0 for k in range(3)):
                 self.particles[i].v = -self.particles[i].v
 
             
             """
             # get the particles that leave the system to re-enter from the opposite side:
             for k in range(3):
-                if self.particles[i].r[k] > system_size:
-                    self.particles[i].r[k] = self.particles[i].r[k] - system_size
+                if self.particles[i].r[k] > unit_cell_size * (lattice_dim - 0.5):
+                    self.particles[i].r[k] = self.particles[i].r[k] - unit_cell_size * (lattice_dim - 0.5)
                 if self.particles[i].r[k] < 0:
-                    self.particles[i].r[k] = self.particles[i].r[k] + system_size
+                    self.particles[i].r[k] = self.particles[i].r[k] + unit_cell_size * (lattice_dim - 0.5)
             """
 
     # system evolution through time:     
     def verlet_simulate(self, dt, t, unit_cell_size, lattice_dim):
         n_iter = int(t/dt)
         n = len(self.particles)
-        system_size = unit_cell_size * lattice_dim
         with open('md.txt', 'w') as file:
             pass
         with open('temp.txt', 'w') as file:
@@ -130,7 +128,7 @@ class system:
             with open('md.txt', 'a') as file:
                 file.write(f"{n}\n")
                 file.write("type                    x                    y                    z\n")
-            self.verlet_evolve(dt, system_size)
+            self.verlet_evolve(dt, unit_cell_size, lattice_dim)
             self.calculate_temperature()
         # write last step to file:
         with open('md.txt', 'a') as file:
