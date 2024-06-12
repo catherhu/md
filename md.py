@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from itertools import product
-#from joblib import Parallel, delayed
 
 
 class particle:
@@ -38,7 +36,7 @@ class system:
                     self.particles.append(particle(r, v, m))
     
     
-    def calculate_temperature(self):
+    def calculate_temperature(self, time):
         n = len(self.particles)
         sum = 0
         for i in range(n):
@@ -46,7 +44,7 @@ class system:
             sum += v[0]**2 + v[1]**2 + v[2]**2
         T = 1/(3*n)*sum
         with open('temp.txt', 'a') as file:
-                file.write(f"{T}\n")
+            file.write(f"{time:.2f}\t{T}\n")
 
 
     # calculating force between two particles:        
@@ -57,12 +55,10 @@ class system:
         #r_j = self.particles[j].r + coord_array # by using coord_array we also consider interactions with dummy particles outside the boundaries
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2) # calculating distance between two particles
         # particles far apart have negligible interactions
-        """
         if s > 3:
             F = 0
         else:
-        """
-        F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
+            F = 24*(2/s**12 - 1/s**6)*(r_i - r_j)/(s**2)
         return F
     
     # calculating total force from all particles acting on a chosen particle:
@@ -123,13 +119,14 @@ class system:
         with open('md.txt', 'w') as file:
             pass
         with open('temp.txt', 'w') as file:
-            pass
+            file.write("time\ttemperature\n")
         for i in range(n_iter):
             with open('md.txt', 'a') as file:
                 file.write(f"{n}\n")
                 file.write("type                    x                    y                    z\n")
+            time = i*dt
+            self.calculate_temperature(time)
             self.verlet_evolve(dt, unit_cell_size, lattice_dim)
-            self.calculate_temperature()
         # write last step to file:
         with open('md.txt', 'a') as file:
             file.write(f"{n}\n")
@@ -137,6 +134,8 @@ class system:
         for i in range(n):
             with open('md.txt', 'a') as file:
                 file.write(f"Ar          {self.particles[i].r[0]:.10f}          {self.particles[i].r[1]:.10f}          {self.particles[i].r[2]:.10f}\n")
+        time = t
+        self.calculate_temperature(time)
             
             
             
