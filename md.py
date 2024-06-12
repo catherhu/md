@@ -58,7 +58,7 @@ class system:
         s = np.sqrt((r_i[0] - r_j[0])**2 + (r_i[1] - r_j[1])**2 + (r_i[2] - r_j[2])**2) # calculating distance between two particles
         # particles far apart have negligible interactions
         """
-        if s > :
+        if s > 3:
             F = 0
         else:
         """
@@ -103,11 +103,10 @@ class system:
             self.particles[i].v = self.particles[i].v + 0.5*a[i]*dt
             
             # reflective boundaries:
-            for k in range(3):
-                if self.particles[i].r[k] > system_size:
-                    self.particles[i].v = -self.particles[i].v
-                if self.particles[i].r[k] < 0:
-                    self.particles[i].v = -self.particles[i].v 
+            if self.particles[i].r[0] > system_size or self.particles[i].r[1] > system_size or self.particles[i].r[2] > system_size:
+                self.particles[i].v = -self.particles[i].v
+            if self.particles[i].r[0] < 0 or self.particles[i].r[1] < 0 or self.particles[i].r[2] < 0:
+                self.particles[i].v = -self.particles[i].v 
 
             """
             # get the particles that leave the system to re-enter from the opposite side:
@@ -122,7 +121,7 @@ class system:
     def verlet_simulate(self, dt, t, unit_cell_size, lattice_dim):
         n_iter = int(t/dt)
         n = len(self.particles)
-        system_size = unit_cell_size * lattice_dim # is this correct system size?
+        system_size = unit_cell_size * lattice_dim
         with open('md.txt', 'w') as file:
             pass
         with open('temp.txt', 'w') as file:
