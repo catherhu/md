@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.loadtxt("temp.txt", skiprows = 1)
+data = np.loadtxt("temp.txt")
 time = data[:, 0]
 temperature = data[:, 1] * 119.7
 
