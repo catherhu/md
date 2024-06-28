@@ -11,15 +11,15 @@ class system:
     def __init__ (self):
         self.particles = []
 
-    def two_particles(self, m, distance):
+    def add_two_particles(self, m, separation):
         r = np.zeros(3)
         v = np.zeros(3)
         a = np.zeros(3)
         self.particles.append(particle(r, v, m, a))
-        r = np.array([0, 0, distance])
+        r = np.array([0, 0, separation])
         self.particles.append(particle(r, v, m, a))
     
-    def add_particles_lattice(self, unit_cell_size, lattice_dim, m, T):
+    def add_particles_lattice(self, unit_cell_size, lattice_dim, m, T = 0):
         positions = np.array(list(product(range(lattice_dim), repeat=3))) * unit_cell_size
         offsets = np.array([[0, 0.5, 0.5], [0.5, 0, 0.5], [0.5, 0.5, 0], [0, 0, 0]]) * unit_cell_size
         for p in positions:
@@ -84,7 +84,7 @@ class system:
                 p.v *= lambda_factor
 
     # system evolution through time:     
-    def verlet_simulate(self, dt, t, unit_cell_size, lattice_dim, target_temp, boundaries, thermostat):
+    def verlet_simulate(self, dt, t, unit_cell_size = None, lattice_dim = None, target_temp = None, boundaries = False, thermostat = False):
         n_iter = int(t/dt)
         n = len(self.particles)
         with open('md.txt', 'w') as md_file, open('temp.txt', 'w') as temp_file:
