@@ -8,12 +8,14 @@ dt = 0.01 # time step
 m = 1 # mass
 #T = 0.8 # initial temperature
 T = 2.5 # initial temperature
-
+distance = 1.1
 
 my_system = md.system() 
 
-my_system.add_particles(unit_cell_size, lattice_dim, m, T)
+my_system.two_particles(m, distance)
 
-my_system.verlet_simulate(dt, t, unit_cell_size, lattice_dim, T)
+#my_system.add_particles_lattice(unit_cell_size, lattice_dim, m, T)
+
+my_system.verlet_simulate(dt, t, unit_cell_size, lattice_dim, T, boundaries = False, thermostat = False)
 
 
